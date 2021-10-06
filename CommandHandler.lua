@@ -57,8 +57,8 @@ Client.Chatted:Connect(utility.RunCommand)
 --[[ 
 or if you're using something like a textbox you can alternatively do: 
 TextBox.FocusLost:Connect(function()
-     utility.RunCommand(utility.CommandPrefix .. TextBox.Text)
-     -- you can add checks like string.len on text and what not also
+    utility.RunCommand(utility.CommandPrefix .. TextBox.Text)
+    -- you can add checks like string.len on text and what not also
 end)
 ]]--
 
