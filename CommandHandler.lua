@@ -60,4 +60,3 @@ utility.AddCommand({"reset"}, "Resets your Character", function()
         Client.Character.BreakJoints(Client.Character) 
     end
 end)
-
