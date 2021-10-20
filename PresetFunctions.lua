@@ -1,15 +1,17 @@
 --[[
 library for preset functions that i use so i dont have to CnP the same functions in every script
 ================================================================================================
+
 i will occasionaly add functions to this
 If you would like to use this, here is an example
+=======================================================================================================================================
 
-==
 local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/xaxaxaxaxaxaxaxaxa/Libraries/main/PresetFunctions.lua", true))()
 
 print(typeof(lib.GetAttribute(game.GetService(game, "Players").LocalPlayer.Character, "Right Arm")))
 ^^ prints the typeof, of "Right Arm"
 
+=======================================================================================================================================
 ]]--
 
 -- init
