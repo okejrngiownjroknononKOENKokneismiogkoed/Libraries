@@ -21,7 +21,7 @@ if not game.IsLoaded(game) then
     repeat wait() until game.IsLoaded(game)
 end
 
-getgenv().Service = setmetatable({}, {
+local Service = setmetatable({}, {
     __index = function(_, Index)
         if Index then 
             return game.GetService(game, Index)
