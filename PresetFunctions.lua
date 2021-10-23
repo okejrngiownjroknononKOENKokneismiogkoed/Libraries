@@ -32,12 +32,25 @@ local Service = setmetatable({}, {
 })
 
 -- variables
-local Players, workspace = Service.Players, Service.Workspace;
+local Players, StarterGui, workspace = Service.Players, Service.StarterGui, Service.Workspace;
 local Client, Mouse, Camera = Players.LocalPlayer, Players.LocalPlayer.GetMouse(Players.LocalPlayer), workspace.CurrentCamera;
 local FindFirstChild, FindFirstChildOfClass, FindFirstChildWhichIsA = game.FindFirstChild, game.FindFirstChildOfClass, game.FindFirstChildWhichIsA;
 local Vector2 = Vector2.new;
 
 -- script functions
+function utility.Notify(Title, Text, Duration)
+    if not Title then return error"No Title specified for utility.Notify(Title, Text, Duration)" end
+    if not Text then return error"No Text specified for utility.Notify(Title, Text, Duration)" end
+    if not Duration then return error"No Duration specified for utility.Notify(Title, Text, Duration)" end
+    
+    StarterGui.SetCore(StarterGui, "SendNotification", {
+        Title = Title,
+        Text = Text,
+        Icon = Players.GetUserThumbnailAsync(Players, Client.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size420x420),
+        Duration = Duration,
+    }) 
+end
+
 function utility.GetCharacter(Player)
     if not Player then return error"No Player specified for utility.GetCharacter(Player)" end
     
