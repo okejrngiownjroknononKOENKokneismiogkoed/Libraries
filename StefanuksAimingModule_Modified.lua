@@ -1,3 +1,6 @@
+-- original repo https://raw.githubusercontent.com/Stefanuk12/ROBLOX/master/Universal/Aiming/Module.lua
+-- using this for ciazware (da hood) 
+-- all credits to him
 if getgenv().Aiming then return getgenv().Aiming end
 
 -- // Services
