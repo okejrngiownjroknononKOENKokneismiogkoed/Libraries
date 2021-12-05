@@ -1,119 +1,237 @@
-local library = {
+local library, patches = {
     configuration = {
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        TextSize = 14, 
-        Font = "Code"
-    }
-}
+        FadeInTime = 0.25,
+        FadeOutTime = 0.1,
+        
+        Font = "Code",
+        MainColor = Color3.fromRGB(170, 0, 255),
+        BackgroundColor = Color3.fromRGB(27, 27, 27),
+    },
+}, {};
 
--- init
+-- init 
 if not game.IsLoaded(game) then 
     repeat task.wait() until game.IsLoaded(game)
 end
 
--- variables
-local Players, CoreGui, RunService, TweenService, workspace = game.GetService(game, "Players"), game.GetService(game, "CoreGui"), game.GetService(game, "RunService"), game.GetService(game, "TweenService"), game.GetService(game, "Workspace");
-local Client, Mouse, Camera = Players.LocalPlayer, Players.LocalPlayer.GetMouse(Players.LocalPlayer), workspace.CurrentCamera
-local GetChildren, GetDescendants, Destroy, IsA, Connect = game.GetChildren, game.GetDescendants, game.Destroy, game.IsA, game.Loaded.Connect;
-local UDim2, Color3FromRGB, TweenInfo = UDim2.new, Color3.fromRGB, TweenInfo.new;
-local protectui = ((syn and syn.protect_gui) or protect_gui or protectgui); do
-    if not protectui then 
-        error"No protectgui function found in your exploit, you are at risk"
+local GetService = game.GetService;
+local Service = setmetatable({}, {
+    __index = function(_, Index)
+        if Index then 
+            if GetService(game, Index) then
+                return GetService(game, Index)
+            else 
+                return error(string.format("%s is not a Valid Game Service", Index))
+            end
+        else 
+            return error"No index specified for Service variable"
+        end
     end
-end
+})
 
-local configuration = library.configuration;
+-- variables
+local TextService, TweenService = Service.TextService, Service.TweenService;
+local UDim2, UDim, Vector2, Rect = UDim2.new, UDim.new, Vector2.new, Rect.new;
+local NewInstance, Color3FromRGB = Instance.new, Color3.fromRGB;
+
+local GetDescendants, GetChildren = game.GetDescendants, game.GetChildren;
+local IsA, Destroy, Connect = game.IsA, game.Destroy, game.Loaded.Connect;
+local find, lower = string.find, string.lower
+
+local PropertiesTable = {["Frame"] = "BackgroundTransparency", ["TextLabel"] = "TextTransparency", ["UIStroke"] = "Transparency"};
+local ValidObjectsToFade = {"Frame", "TextLabel", "UIStroke"};
+
+local protectui = ((syn and syn.protect_gui) or protect_gui)
+if not protectui then error"No protect_gui function found in your exploit, you are at risk" end
 
 -- script functions
-function library.new()
-    local ScreenGui = Instance.new("ScreenGui"); protectui(ScreenGui)
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = CoreGui
+function patches.FixTextSize(Object, FixValue)
+    --[[local TextSizeX = TextService.GetTextSize(TextService, 
+        Object.Text, Object.TextSize, Object.Font, Vector2(Camera.ViewportSize.X, Object.AbsoluteSize.Y)
+    ).X]]--
     
-    local HoldingFrame = Instance.new("Frame")
-    HoldingFrame.Name = "HoldingFrame"
-    HoldingFrame.BackgroundTransparency = 1
-    HoldingFrame.BackgroundColor3 = Color3FromRGB(255, 255, 255)
-    HoldingFrame.BorderSizePixel = 0
-    HoldingFrame.Position = UDim2(0.87, 0, 0.912883461, 0)
-    HoldingFrame.Size = UDim2(0, 238, 0, 60)
-    HoldingFrame.Parent = ScreenGui
+    local TextSize = UDim2(0, Object.TextBounds.X + FixValue, 0, Object.TextBounds.Y + 10)
+    Object.Size = TextSize
+end
+
+function patches.FadeObject(Object, Speed, Value)
+    local Property = PropertiesTable[Object.ClassName]
     
-    local HoldingFrame_UIListLayout = Instance.new("UIListLayout")
-    HoldingFrame_UIListLayout.Name = "HoldingFrame_UIListLayout"
-    HoldingFrame_UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    HoldingFrame_UIListLayout.Padding = UDim.new(0, 6)
-    HoldingFrame_UIListLayout.Parent = HoldingFrame
+    local TweenServiceInfo = TweenService.Create(TweenService, Object, TweenInfo.new(Speed, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+        [Property] = Value,
+    }); TweenServiceInfo.Play(TweenServiceInfo);
+end
+
+function library.importmodule()
+    local ScreenGui = NewInstance("ScreenGui");
+    if protectui then protectui(ScreenGui) end
     
-    Connect(HoldingFrame_UIListLayout.GetPropertyChangedSignal(HoldingFrame_UIListLayout, "AbsoluteContentSize"), function()
-        if #GetChildren(HoldingFrame) > 1 then 
-            HoldingFrame.Size = UDim2(0, 238, 0, -HoldingFrame_UIListLayout.AbsoluteContentSize.Y + 70)
+    ScreenGui.Name = "ciazware_notification_lib"
+    ScreenGui.ZIndexBehavior = "Global";
+    ScreenGui.Parent = game.GetService(game, "CoreGui");
+    
+    local BackFrame = NewInstance("Frame")
+    BackFrame.Name = "BackFrame"
+    BackFrame.BackgroundColor3 = Color3FromRGB(255, 255, 255)
+    BackFrame.BackgroundTransparency = 1.000
+    BackFrame.Position = UDim2(0.9, 0, 0.860122621, 0)
+    BackFrame.Size = UDim2(0, 176, 0, 82)
+    BackFrame.Parent = ScreenGui
+    
+    local BackFrame_ListLayout = NewInstance("UIListLayout")
+    BackFrame_ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    BackFrame_ListLayout.Padding = UDim(0, 15)
+    BackFrame_ListLayout.Parent = BackFrame
+    
+    Connect(BackFrame_ListLayout.GetPropertyChangedSignal(BackFrame_ListLayout, "AbsoluteContentSize"), function()
+        if #GetChildren(BackFrame) > 1 then 
+            BackFrame.Size = UDim2(0, 176, 0, -BackFrame_ListLayout.AbsoluteContentSize.Y + 100)
         end
     end)
     
-    -- notification function
     local notifications = {}
     
     function notifications.Notify(Title, Description, Duration, ...)
         if not (Title or Description or Duration or ...) or not (type(Title) == "string" or type(Description) == "string" or type(Duration) == "number" or type(...) == "table") then 
-            return error"Argument Error with function: library.Notify(Title, Description, Duration, SettingsTable)"
+            return error"Argument error with function: notifications.Notify(Title, Description, Duration, ConfigurationTable)"
         end
         
-        local Settings = ({...})[1];
-        local TextColor3, TextSize, Font = Settings.TextColor3, Settings.TextSize, Settings.Font;
+        local ConfigurationTable = ({...})[1];
+        -- local Position = ConfigurationTable.Position;
+        local FadeInTime, FadeOutTime = ConfigurationTable.FadeInTime, ConfigurationTable.FadeOutTime;
+        local Font, MainColor, BackgroundColor = ConfigurationTable.Font, ConfigurationTable.MainColor, ConfigurationTable.BackgroundColor;
         
-        if not (TextColor3 or TextSize or Font) or not (typeof(TextColor3) == "Instance" or type(TextSize) == "number") then 
-            return error"Argument Error with SettingsTable, function: library.Notify(Title, Text, Description, Duration, SettingsTable)"
-        end
+        -- BackFrame.Position = ((lower(Position) == "bottom right" and UDim2(0.9, 0, 0.860122621, 0)) or (lower(Position) == "top right" and UDim2()))
         
-        local NotificationFrame = Instance.new("Frame")
-        NotificationFrame.Name = "NotificationFrame"
-        NotificationFrame.BackgroundColor3 = Color3FromRGB(30, 30, 30)
-        NotificationFrame.BackgroundTransparency = 0
-        NotificationFrame.BorderColor3 = Color3FromRGB(170, 0, 255)
-        NotificationFrame.Position = UDim2(-0.00304841995, 0, -0.00102490187, 0)
-        NotificationFrame.Size = UDim2(0, 239, 0, 59)
-        NotificationFrame.Parent = HoldingFrame
+        local MainFrame = NewInstance("Frame")
+        MainFrame.Name = "MainFrame"
+        MainFrame.Parent = ScreenGui
+        MainFrame.BackgroundColor3 = BackgroundColor
+        MainFrame.BorderColor3 = MainColor
+        MainFrame.BorderSizePixel = 2
+        MainFrame.Position = UDim2(-0.00254541636, 0, -0.0116585493, 0)
+        MainFrame.Size = UDim2(0, 176, 0, 82)
+        MainFrame.Parent = BackFrame
         
-        local TitleDividerFrame = Instance.new("Frame")
-        TitleDividerFrame.Name = "TitleDividerFrame"
-        TitleDividerFrame.BackgroundColor3 = Color3FromRGB(170, 0, 255)
-        TitleDividerFrame.BorderSizePixel = 0
-        TitleDividerFrame.Position = UDim2(0, 0, 0.297916651, 0)
-        TitleDividerFrame.Size = UDim2(0, 239, 0, 1)
-        TitleDividerFrame.Parent = NotificationFrame
-    
-        local TitleLabel = Instance.new("TextLabel")
+        local FakeBorderFrame = NewInstance("Frame")
+        FakeBorderFrame.Name = "FakeBorderFrame"
+        FakeBorderFrame.BackgroundColor3 = Color3FromRGB(255, 255, 255)
+        FakeBorderFrame.BackgroundTransparency = 1.000
+        FakeBorderFrame.BorderColor3 = Color3FromRGB(30, 30, 30)
+        FakeBorderFrame.Position = UDim2(0, 1, 0.00899970811, 0)
+        FakeBorderFrame.Size = UDim2(0, 174, 0, 80)
+        FakeBorderFrame.Parent = MainFrame
+        
+        local FakeBorderFrame_Border = NewInstance("UIStroke")
+        FakeBorderFrame_Border.ApplyStrokeMode = "Border"
+        FakeBorderFrame_Border.Color = Color3FromRGB(44, 44, 44)
+        FakeBorderFrame_Border.LineJoinMode = "Miter"
+        FakeBorderFrame_Border.Thickness = 2.1 
+        FakeBorderFrame_Border.Parent = FakeBorderFrame
+        
+        local FakeDescriptionBorderFrame = NewInstance("Frame")
+        FakeDescriptionBorderFrame.Name = "FakeDescriptionBorderFrame"
+        FakeDescriptionBorderFrame.BackgroundColor3 = BackgroundColor
+        FakeDescriptionBorderFrame.BorderColor3 = Color3FromRGB(44, 44, 44)
+        FakeDescriptionBorderFrame.BorderSizePixel = 2
+        FakeDescriptionBorderFrame.Position = UDim2(0.0340000018, 0, 0.426999986, 0)
+        FakeDescriptionBorderFrame.Size = UDim2(0, 162, 0, 38)
+        FakeDescriptionBorderFrame.Parent = MainFrame
+        
+        local DescriptionFrame = NewInstance("Frame")
+        DescriptionFrame.Name = "DescriptionFrame"
+        DescriptionFrame.BackgroundColor3 = BackgroundColor
+        DescriptionFrame.BackgroundTransparency = 1.000
+        DescriptionFrame.BorderColor3 = MainColor
+        DescriptionFrame.Position = UDim2(0.00499999989, 0, 0.0299999993, 0)
+        DescriptionFrame.Size = UDim2(0, 160, 0, 36)
+        DescriptionFrame.Parent = FakeDescriptionBorderFrame
+        
+        local DescriptionFrame_Border = NewInstance("UIStroke")
+        DescriptionFrame_Border.ApplyStrokeMode = "Border"
+        DescriptionFrame_Border.Color = MainColor
+        DescriptionFrame_Border.LineJoinMode = "Round"
+        DescriptionFrame_Border.Thickness = 1.2
+        DescriptionFrame_Border.Parent = DescriptionFrame
+        
+        local NameLabelSpliterFrame = NewInstance("Frame")
+        NameLabelSpliterFrame.Name = "NameLabelSpliterFrame"
+        NameLabelSpliterFrame.BackgroundColor3 = MainColor
+        NameLabelSpliterFrame.BorderColor3 = MainColor
+        NameLabelSpliterFrame.BorderSizePixel = 0
+        NameLabelSpliterFrame.Position = UDim2(0.0340000018, 0, 0.270000011, 0)
+        NameLabelSpliterFrame.Size = UDim2(0, 163, 0, 1)
+        NameLabelSpliterFrame.Parent = MainFrame
+        
+        local NameLabelSpliterFrame_Border = NewInstance("UIStroke")
+        NameLabelSpliterFrame_Border.ApplyStrokeMode = "Border"
+        NameLabelSpliterFrame_Border.Color = Color3FromRGB(44, 44, 44)
+        NameLabelSpliterFrame_Border.LineJoinMode = "Miter"
+        NameLabelSpliterFrame_Border.Thickness = 2.1
+        NameLabelSpliterFrame_Border.Parent = NameLabelSpliterFrame
+        
+        local TitleLabel = NewInstance("TextLabel")
         TitleLabel.Name = "TitleLabel"
         TitleLabel.BackgroundColor3 = Color3FromRGB(255, 255, 255)
         TitleLabel.BackgroundTransparency = 1.000
-        TitleLabel.Position = UDim2(0.00303566898, 0, 0, 0)
-        TitleLabel.Size = UDim2(0, 238, 0, 17)
+        TitleLabel.Size = UDim2(0, 67, 0, 22)
         TitleLabel.Font = Font
+        TitleLabel.LineHeight = 1.180
         TitleLabel.Text = Title
-        TitleLabel.TextColor3 = TextColor3
-        TitleLabel.TextSize = TextSize
-        TitleLabel.TextStrokeColor3 = TextColor3
-        TitleLabel.Parent = NotificationFrame
+        TitleLabel.TextColor3 = Color3FromRGB(255, 255, 255)
+        TitleLabel.TextSize = 14.000
+        TitleLabel.TextStrokeColor3 = Color3FromRGB(255, 255, 255)
+        TitleLabel.Parent = MainFrame
         
-        local DescriptionLabel = Instance.new("TextLabel")
+        patches.FixTextSize(TitleLabel, 15)
+
+        local DescriptionLabel = NewInstance("TextLabel")
         DescriptionLabel.Name = "DescriptionLabel"
         DescriptionLabel.BackgroundColor3 = Color3FromRGB(255, 255, 255)
         DescriptionLabel.BackgroundTransparency = 1.000
-        DescriptionLabel.Position = UDim2(0, 0, 0.314865887, 0)
-        DescriptionLabel.Size = UDim2(0, 239, 0, 39)
+        DescriptionLabel.Position = UDim2(0.0284090918, 0, 0.426999718, 0)
+        DescriptionLabel.Size = UDim2(0, 162, 0, 37)
         DescriptionLabel.Font = Font
         DescriptionLabel.Text = Description
-        DescriptionLabel.TextColor3 = TextColor3
-        DescriptionLabel.TextSize = TextSize
-        DescriptionLabel.TextStrokeColor3 = TextColor3
-        DescriptionLabel.Parent = NotificationFrame
+        DescriptionLabel.TextColor3 = Color3FromRGB(255, 255, 255)
+        DescriptionLabel.TextSize = 14.000
+        DescriptionLabel.TextStrokeColor3 = Color3FromRGB(255, 255, 255)
+        DescriptionLabel.Parent = MainFrame
         
-        wait(Duration)
-        Destroy(NotificationFrame)
-    
-        -- i will add tweening later
+        for Index, Object in next, GetChildren(MainFrame) do 
+            if (IsA(Object, "Frame") and not find(Object.Name, "Fake")) or IsA(Object, "TextLabel") then 
+                Object[PropertiesTable[Object.ClassName]] = 1
+            end
+        end
+        
+        local function FadeInAllDescendants()
+            patches.FadeObject(MainFrame, FadeInTime, 0)
+            
+            for Index, Object in ipairs(GetDescendants(MainFrame)) do 
+                if (IsA(Object, "Frame") and not find(Object.Name, "Fake")) or IsA(Object, "TextLabel") or IsA(Object, "UIStroke") then 
+                    patches.FadeObject(Object, FadeInTime, 0)
+                end
+            end
+        end
+        FadeInAllDescendants()
+        
+        function FadeOutAllDescendants()
+            patches.FadeObject(MainFrame, FadeOutTime, 1)
+            
+            for Index, Object in ipairs(GetDescendants(MainFrame)) do 
+                if IsA(Object, "Frame") or IsA(Object, "TextLabel") or IsA(Object, "UIStroke") then 
+                    patches.FadeObject(Object, FadeOutTime, 1)
+                end
+            end
+        end
+        
+        delay(Duration, function()
+            FadeOutAllDescendants()
+            
+            delay(0.5, function() 
+                Destroy(MainFrame) 
+            end)
+        end)
     end
     
     return notifications
