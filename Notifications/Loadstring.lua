@@ -6,5 +6,5 @@ source.configuration = {
         
     Font = "Code", -- The font of all the text in the notification, https://developer.roblox.com/en-us/api-reference/enum/Font
     MainColor = Color3.fromRGB(170, 0, 255), -- The main color of the notification frame, https://www.rapidtables.com/web/color/RGB_Color.html
-    BackgroundColor = Color3.fromRGB(27, 27, 27), The background color of the notification frame, https://www.rapidtables.com/web/color/RGB_Color.html
+    BackgroundColor = Color3.fromRGB(27, 27, 27), -- The background color of the notification frame, https://www.rapidtables.com/web/color/RGB_Color.html
 }
