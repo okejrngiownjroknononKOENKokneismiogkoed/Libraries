@@ -24,4 +24,18 @@ Custom functions = [
     ]
 ]
 
+-- Whole example:
+
+local source = loadstring(game:HttpGet("https://raw.githubusercontent.com/xaxaxaxaxaxaxaxaxa/Libraries/main/Notifications/Source.lua", true))();
+source.configuration = {
+    FadeInTime = 0.25, 
+    FadeOutTime = 0.1, 
+        
+    Font = "Code", 
+    MainColor = Color3.fromRGB(170, 0, 255), 
+    BackgroundColor = Color3.fromRGB(27, 27, 27), 
+}
+
+local lib = source.importmodule()
+lib.Notify("title", "description", 3, source.configuration)
 ]]--
