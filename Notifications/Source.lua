@@ -1,3 +1,4 @@
+-- for usage, please refer to the documentation, https://github.com/xaxaxaxaxaxaxaxaxa/Libraries/edit/main/Notifications/Documentation.lua
 local library, patches = {
     configuration = {
         FadeInTime = 0.25,
