@@ -51,7 +51,7 @@ function patches.FixTextSize(Object, FixValue)
         Object.Text, Object.TextSize, Object.Font, Vector2(Camera.ViewportSize.X, Object.AbsoluteSize.Y)
     ).X]]--
     
-    local TextSize = UDim2(0, Object.TextBounds.X + FixValue, 0, Object.TextBounds.Y + 10)
+    local TextSize = UDim2(0, Object.TextBounds.X - 2 + FixValue, 0, Object.TextBounds.Y + 10)
     Object.Size = TextSize
 end
 
