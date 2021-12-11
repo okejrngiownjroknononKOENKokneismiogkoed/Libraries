@@ -77,6 +77,7 @@ circle.Transparency = 1
 circle.Thickness = 2
 circle.Color = Aiming.FOVColour
 circle.Filled = false
+circle.NumSides = 150
 Aiming.FOVCircle = circle
 
 -- // Update
