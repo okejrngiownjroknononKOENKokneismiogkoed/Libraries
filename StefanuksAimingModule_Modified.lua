@@ -39,13 +39,20 @@ local tableinsert = table.insert
 -- // Silent Aim Vars
 getgenv().Aiming = {
     Enabled = true,
+
+    ShowFOV = true,
+    FOV = 60,
+    FOVSides = 12,
+    FOVColour = Color3fromRGB(231, 84, 128),
+
     VisibleCheck = true,
+    
     HitChance = 100,
 
     Selected = nil,
     SelectedPart = nil,
 
-    TargetPart = {"Head", "UpperTorso"},
+    TargetPart = {"Head", "HumanoidRootPart"},
 
     Ignored = {
         Teams = {
@@ -63,6 +70,32 @@ getgenv().Aiming = {
     RaycastIgnore = nil
 }
 local Aiming = getgenv().Aiming
+
+-- // Create circle
+local circle = Drawingnew("Circle")
+circle.Transparency = 1
+circle.Thickness = 2
+circle.Color = Aiming.FOVColour
+circle.Filled = false
+Aiming.FOVCircle = circle
+
+-- // Update
+function Aiming.UpdateFOV()
+    -- // Make sure the circle exists
+    if not (circle) then
+        return
+    end
+
+    -- // Set Circle Properties
+    circle.Visible = Aiming.ShowFOV
+    circle.Radius = (Aiming.FOV * 3)
+    circle.Position = Vector2new(Mouse.X, Mouse.Y + GetGuiInset(GuiService).Y)
+    circle.NumSides = Aiming.FOVSides
+    circle.Color = Aiming.FOVColour
+
+    -- // Return circle
+    return circle
+end
 
 -- // Custom Functions
 local CalcChance = function(percentage)
@@ -277,6 +310,11 @@ function Aiming.CheckHealth(Player)
     return Health > 0
 end
 
+-- // Custom Check Function
+function Aiming.CheckCustom(Player)
+    return true
+end
+
 -- // Check if silent aim can used
 function Aiming.Check()
     return (Aiming.Enabled == true and Aiming.Selected ~= LocalPlayer and Aiming.SelectedPart ~= nil)
@@ -379,10 +417,10 @@ function Aiming.GetClosestPlayerToCursor()
             -- // Vars
             local TargetPartTemp, _, _, Magnitude = Aiming.GetClosestTargetPartToCursor(Character)
 
-            -- // Check if part exists and health
-            if (TargetPartTemp and Aiming.CheckHealth(Player)) then
+            -- // Check if part exists, health and custom
+            if (TargetPartTemp and Aiming.CheckHealth(Player) and Aiming.CheckCustom(Player)) then
                 -- // Check if is in FOV
-                if (ciazware.AimbotLockOnRadius > Magnitude and Magnitude < ShortestDistance) then
+                if (circle.Radius > Magnitude and Magnitude < ShortestDistance) then
                     -- // Check if Visible
                     if (Aiming.VisibleCheck and not Aiming.IsPartVisible(TargetPartTemp, Character)) then continue end
 
@@ -402,6 +440,7 @@ end
 
 -- // Heartbeat Function
 Heartbeat:Connect(function()
+    Aiming.UpdateFOV()
     Aiming.GetClosestPlayerToCursor()
 end)
 
