@@ -2,6 +2,8 @@
 ![alt text](https://cdn.discordapp.com/attachments/839732651803803659/923708407775649812/unknown.png)
 
 # Usage
-yes
+```lua
+print"yes"
+```
 
 # Inspired by - https://github.com/Belkworks/chalk
