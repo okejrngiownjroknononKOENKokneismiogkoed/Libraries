@@ -3,7 +3,7 @@
 
 # Usage
 ```lua
-print"yes"
+https://github.com/xaxaxaxaxaxaxaxaxa/Libraries/blob/main/Chalk/Documentation.lua
 ```
 
 # Inspired by - https://github.com/Belkworks/chalk
