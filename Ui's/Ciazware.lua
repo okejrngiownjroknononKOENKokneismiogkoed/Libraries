@@ -728,7 +728,7 @@ function library.new(Name)
                     
                     function subelements.AddToolTip(Text)
                         assert((Text or type(Text) == "string"))
-                        internalfunctions.HandleToolTip(ToggleLabel, Text) 
+                        internalfunctions.HandleToolTip(TextBoxLabel, Text) 
                     end
                     
                     return subelements
@@ -1051,7 +1051,7 @@ function library.new(Name)
                     
                     function subelements.AddToolTip(Text)
                         assert((Text or type(Text) == "string"))
-                        internalfunctions.HandleToolTip(ToggleLabel, Text) 
+                        internalfunctions.HandleToolTip(KeybindLabel, Text) 
                     end
                     
                     return subelements
