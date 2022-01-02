@@ -1,5 +1,4 @@
 -- credits due: bracket lib - keybind & tooltip function, cripware - slider math
--- everything else made by xaxa/xaxa420/zxciaz
 
 local library, patches = {
     version = "1.0",
@@ -1069,3 +1068,5 @@ function library.new(Name)
     
     return tabs
 end
+
+return library
